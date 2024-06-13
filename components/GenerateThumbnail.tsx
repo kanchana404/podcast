@@ -1,9 +1,8 @@
-import React from 'react'
+import { GeneratePodcastProps } from "@/types";
+import React from "react";
 
 const GenerateThumbnail = () => {
-  return (
-    <div>GenerateThumbnail</div>
-  )
-}
+  return <div>GenerateThumbnail</div>;
+};
 
-export default GenerateThumbnail
+export default GenerateThumbnail;
