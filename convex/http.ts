@@ -1,49 +1,40 @@
+// ===== reference links =====
+// https://www.convex.dev/templates (open the link and choose for clerk than you will get the github link mentioned below)
+// https://github.dev/webdevcody/thumbnail-critique/blob/6637671d72513cfe13d00cb7a2990b23801eb327/convex/schema.ts
+
+import type { WebhookEvent } from "@clerk/nextjs/server";
 import { httpRouter } from "convex/server";
-import { httpAction } from "./_generated/server";
-import { internal } from "./_generated/api";
-import type { WebhookEvent } from "@clerk/backend";
 import { Webhook } from "svix";
 
-
+import { internal } from "./_generated/api";
+import { httpAction } from "./_generated/server";
 
 const handleClerkWebhook = httpAction(async (ctx, request) => {
   const event = await validateRequest(request);
   if (!event) {
-    return new Response("Error occured", {
-      status: 400,
-    });
+    return new Response("Invalid request", { status: 400 });
   }
   switch (event.type) {
-    case "user.created": 
-    await ctx.runMutation(internal.users.createUser,{
-      clerkId: event.data.id,
-      email: event.data.email_addresses[0].email_address,
-      imageUrl: event.data.image_url,
-      name: event.data.full_name!,
-
-    })
-    // case "user.updated": {
-    //   const existingUser = await ctx.runQuery(internal.users.getUser, {
-    //     subject: event.data.id,
-    //   });
-    //   if (existingUser && event.type === "user.created") {
-    //     console.warn("Overwriting user", event.data.id, "with", event.data);
-    //   }
-    //   console.log("creating/updating user", event.data.id);
-    //   await ctx.runMutation(internal.users.updateOrCreateUser, {
-    //     clerkUser: event.data,
-    //   });
-    //   break;
-    // }
-    // case "user.deleted": {
-    //   // Clerk docs say this is required, but the types say optional?
-    //   const id = event.data.id!;
-    //   await ctx.runMutation(internal.users.deleteUser, { id });
-    //   break;
-    // }
-    default: {
-      console.log("ignored Clerk webhook event", event.type);
-    }
+    case "user.created":
+      await ctx.runMutation(internal.users.createUser, {
+        clerkId: event.data.id,
+        email: event.data.email_addresses[0].email_address,
+        imageUrl: event.data.image_url,
+        name: event.data.first_name as string,
+      });
+      break;
+    case "user.updated":
+      await ctx.runMutation(internal.users.updateUser, {
+        clerkId: event.data.id,
+        imageUrl: event.data.image_url,
+        email: event.data.email_addresses[0].email_address,
+      });
+      break;
+    case "user.deleted":
+      await ctx.runMutation(internal.users.deleteUser, {
+        clerkId: event.data.id as string,
+      });
+      break;
   }
   return new Response(null, {
     status: 200,
@@ -51,32 +42,31 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
 });
 
 const http = httpRouter();
+
 http.route({
-  path: "/clerk-users-webhook",
+  path: "/clerk",
   method: "POST",
   handler: handleClerkWebhook,
 });
 
-async function validateRequest(
+const validateRequest = async (
   req: Request
-): Promise<WebhookEvent | undefined> {
+): Promise<WebhookEvent | undefined> => {
+  // key note : add the webhook secret variable to the environment variables field in convex dashboard setting
+  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET!;
+  if (!webhookSecret) {
+    throw new Error("CLERK_WEBHOOK_SECRET is not defined");
+  }
   const payloadString = await req.text();
-
+  const headerPayload = req.headers;
   const svixHeaders = {
-    "svix-id": req.headers.get("svix-id")!,
-    "svix-timestamp": req.headers.get("svix-timestamp")!,
-    "svix-signature": req.headers.get("svix-signature")!,
+    "svix-id": headerPayload.get("svix-id")!,
+    "svix-timestamp": headerPayload.get("svix-timestamp")!,
+    "svix-signature": headerPayload.get("svix-signature")!,
   };
   const wh = new Webhook(webhookSecret);
-  let evt: Event | null = null;
-  try {
-    evt = wh.verify(payloadString, svixHeaders) as Event;
-  } catch (_) {
-    console.log("error verifying");
-    return;
-  }
-
-  return evt as unknown as WebhookEvent;
-}
+  const event = wh.verify(payloadString, svixHeaders);
+  return event as unknown as WebhookEvent;
+};
 
 export default http;
