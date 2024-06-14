@@ -9,6 +9,10 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname:'accurate-goldfish-486.convex.cloud'
+            },
+            {
+                protocol: 'https',
+                hostname:'img.clerk.com'
             }
         ]
     }
