@@ -39,16 +39,20 @@ const formSchema = z.object({
 });
 
 const CreatePodcast = () => {
-  const [imagePrompt, setImagePrompt] = useState('');
-  const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(null);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(
+    null
+  );
+  const [imageUrl, setImageUrl] = useState("");
 
-  const [audioUrl, setAudioUrl] = useState('');
-  const [audioStorageId, setAudioStorageId] = useState<Id<"_storage"> | null>(null);
+  const [audioUrl, setAudioUrl] = useState("");
+  const [audioStorageId, setAudioStorageId] = useState<Id<"_storage"> | null>(
+    null
+  );
   const [audioDuration, setAudioDuration] = useState(0);
 
   const [voiceType, setVoiceType] = useState<string | null>(null);
-  const [voicePrompt, setVoicePrompt] = useState('');
+  const [voicePrompt, setVoicePrompt] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -126,10 +130,10 @@ const CreatePodcast = () => {
                   ))}
                 </SelectContent>
                 {voiceType && (
-                  <audio 
-                  src={`/${voiceType}.mp3`}
-                  autoPlay
-                  className="hidden"
+                  <audio
+                    src={`/${voiceType}.mp3`}
+                    autoPlay
+                    className="hidden"
                   />
                 )}
               </Select>
@@ -157,25 +161,36 @@ const CreatePodcast = () => {
           </div>
 
           <div className="flex flex-col pt-10">
-            <GeneratePodcast 
+            <GeneratePodcast
               setAudioStorageId={setAudioStorageId}
               setAudio={setAudioUrl}
-              voiceType={voiceType || ''} // Provide a fallback value
+              voiceType={voiceType || ""} // Provide a fallback value
               audio={audioUrl}
               voicePrompt={voicePrompt}
               setVoicePrompt={setVoicePrompt}
               setAudioDuration={setAudioDuration}
             />
-            <GenerateThumbnail />
+            <GenerateThumbnail
+              setImage={setImageUrl}
+              setImageStorageId={setImageStorageId}
+              image={imageUrl}
+              imagePrompt={imagePrompt}
+              setImagePrompt={setImagePrompt}
+            />
 
             <div className="mt-10 w-full">
-              <Button type="submit" className="text-16 w-full bg-orange-1 py-4 font-extrabold text-white-1 transition-all duration-500 hover:bg-black-1">
+              <Button
+                type="submit"
+                className="text-16 w-full bg-orange-1 py-4 font-extrabold text-white-1 transition-all duration-500 hover:bg-black-1"
+              >
                 {isSubmitting ? (
                   <>
                     Submitting
                     <Loader size={20} className="animate-spin ml-2" />
                   </>
-                ) : "Submit & Publish Podcast"}
+                ) : (
+                  "Submit & Publish Podcast"
+                )}
               </Button>
             </div>
           </div>
