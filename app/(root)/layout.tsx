@@ -4,6 +4,7 @@ import RightSidebar from "@/components/RightSidebar";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Toaster } from "@/components/ui/toaster"
+import PodcastPlayer from "@/components/PodcastPlayer";
 
 
 export default function RootLayout({
@@ -35,6 +36,8 @@ export default function RootLayout({
         </section>
         <RightSidebar />
       </main>
+
+      <PodcastPlayer />
     </div>
   );
 }
