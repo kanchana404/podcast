@@ -5,9 +5,12 @@ import Link from "next/link";
 import React from "react";
 import Header from "./Header";
 import Carsoul from "./Carsoul";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const RightSidebar = () => {
   const { user } = useUser();
+  const topPodcasters = useQuery(api.users.getTopUserByPodcastCount);
 
   return (
     <section className="right_sidebar text-white-1">
@@ -29,8 +32,12 @@ const RightSidebar = () => {
       </SignedIn>
 
       <section>
-        <Header />
-        <Carsoul />
+        <Header 
+        headerTitle = "Fans Like You"
+        />
+        <Carsoul
+        fansLikeDetails = {topPodcasters}
+        />
       </section>
     </section>
   );
