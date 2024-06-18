@@ -3,6 +3,7 @@ import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import ConvexClerkProvider from "../providers/ConvexClerkProvider";
 import AudioProvider from "@/providers/AudioProvider";
+import { Analytics } from "@vercel/analytics/react"
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -20,10 +21,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    
     <ConvexClerkProvider>
       <html lang="en">
         <AudioProvider>
-        <body className={manrope.className}>{children}</body>
+        <body className={manrope.className}>
+          {children}
+          <Analytics />
+          </body>
         </AudioProvider>
        
       </html>
